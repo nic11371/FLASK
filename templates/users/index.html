@@ -1,0 +1,25 @@
+{% extends "users/layout.html" %}
+
+{% block title %}Пользователи{% endblock%}
+
+{% block content %}
+    <form action="/users" method="get">
+        <input type="search" name="query" value="{{ search }}">
+        <input type="submit" value="Search" />
+    </form>
+
+    <table>
+        {% for u in users %}
+        <tr>
+            <td>
+                {{u.id}}
+            </td>
+            <td>
+                {{u.name}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endblock %}
+</body>
+</html>
