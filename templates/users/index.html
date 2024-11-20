@@ -3,23 +3,16 @@
 {% block title %}Пользователи{% endblock%}
 
 {% block content %}
-    <form action="/users" method="get">
+    <form action="{{ url_for('get_users') }}" method="get">
         <input type="search" name="query" value="{{ search }}">
         <input type="submit" value="Search" />
     </form>
-
-    <table>
-        {% for u in users %}
-        <tr>
-            <td>
-                {{u.id}}
-            </td>
-            <td>
-                {{u.name}}
-            </td>
-        </tr>
+    <a href="{{ url_for('users_new') }}">Добавить пользователя</a>
+    <ul>
+        {% for user in users %}
+       <li>Имя: <a href="{{ url_for('show_user', id=user.id)}}"> {{ user.name }}</a>, Email: {{ user.email}}</li>
         {% endfor %}
-    </table>
+    </ul>
     {% endblock %}
 </body>
 </html>
