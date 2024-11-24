@@ -1,17 +1,14 @@
 from flask import Flask, redirect, request, url_for
-from flask import render_template
+from flask import render_template, flash, get_flashed_messages
 import json
 import uuid
+from user_repository import UserRepository
+
 
 app = Flask(__name__)
+app.secret_key = "secret_key"
 
-users = [
-    {'id': 1, 'name': 'mike'},
-    {'id': 2, 'name': 'mishel'},
-    {'id': 3, 'name': 'adel'},
-    {'id': 4, 'name': 'keks'},
-    {'id': 5, 'name': 'kamila'}
-]
+users = json.load(open("users.json", "r"))
 
 
 @app.route('/')
@@ -21,12 +18,16 @@ def index():
 
 @app.get('/users')
 def get_users():
+    with open("users.json", "r") as f:
+        users = json.load(f)
+    messages = get_flashed_messages(with_categories=True)
     query = request.args.get('query', '')
     filtered = [u for u in users if query in u['name']]
     return render_template(
         'users/index.html',
         users=filtered,
         search=query,
+        messages=messages
     )
 
 
@@ -47,8 +48,9 @@ def users_post():
         'email': user_data['email']
     }
     users.append(user)
-    with open("./users.json", "w") as f:
+    with open("users.json", "w") as f:
         json.dump(users, f)
+    flash("Пользователь успешно добавлен", "success")
     return redirect(url_for('get_users'), code=302)
 
 
@@ -82,6 +84,42 @@ def show_user(id):
         'users/show.html',
         user=user,
     )
+
+
+@app.route('/users/<id>/edit')
+def users_edit(id):
+    repo = UserRepository()
+    user = repo.find(id)
+    errors = {}
+
+    return render_template(
+        'users/edit.html',
+        user=user,
+        errors=errors
+    )
+
+
+@app.route('/users/<id>/patch', methods=['POST'])
+def users_patch(id):
+    repo = UserRepository()
+    user = repo.find(id)
+    data = request.form.to_dict()
+
+    errors = validate(data)
+    if errors:
+        return render_template(
+            'users/edit.html',
+            user=user,
+            errors=errors,
+        ), 422
+
+    user['name'] = data['name']
+    user['email'] = data['email']
+    repo.save(user)
+    with open("users.json", "w") as f:
+        json.dump(users, f)
+    flash('User has been updated', 'success')
+    return redirect(url_for('get_users'))
 
 
 def validate(user):
