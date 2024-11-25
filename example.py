@@ -1,5 +1,5 @@
 from flask import Flask, redirect, request, url_for
-from flask import render_template
+from flask import render_template, flash
 import json
 import uuid
 
@@ -21,6 +21,8 @@ def index():
 
 @app.get('/users')
 def get_users():
+    with open("users.json", "r") as f:
+        users = json.load(f)
     query = request.args.get('query', '')
     filtered = [u for u in users if query in u['name']]
     return render_template(
@@ -47,7 +49,7 @@ def users_post():
         'email': user_data['email']
     }
     users.append(user)
-    with open("./users.json", "w") as f:
+    with open("users.json", "w") as f:
         json.dump(users, f)
     return redirect(url_for('get_users'), code=302)
 
@@ -74,14 +76,52 @@ def courses_show(id):
 
 @app.route('/users/<id>')
 def show_user(id):
-    user = {
-        'id': id,
-        'name': f"user-{id}"
-    }
+    with open("./users.json", "r") as f:
+        users = json.load(f)
+    user = next(user for user in users if id == str(user['id']))
     return render_template(
         'users/show.html',
         user=user,
     )
+
+
+@app.route('/users/<id>/edit')
+def users_edit(id):
+    with open("./users.json", "r") as f:
+        users = json.load(f)
+    query = request.args.get('query', '')
+    filtered = [u for u in users if query in u['id']]
+    errors = {}
+
+    return render_template(
+        'users/edit.html',
+        user=filtered,
+        errors=errors
+    )
+
+
+@app.route('/users/<id>/patch', methods=['POST'])
+def users_patch(id):
+    # with open("./users.json", "r") as f:
+    #     users = json.load(f)
+    query = request.args.get('query', '')
+    filtered = [u for u in users if query in u['id']]
+    data = request.form.to_dict()
+
+    errors = validate(data)
+    if errors:
+        return render_template(
+            'users/edit.html',
+            user=filtered,
+            errors=errors,
+        ), 422
+
+    filtered['name'] = data['name']
+    filtered['email'] = data['email']
+    with open("users.json", "w") as f:
+        json.dump(users, f)
+    flash('User has been updated', 'success')
+    return redirect(url_for('get_users'))
 
 
 def validate(user):
