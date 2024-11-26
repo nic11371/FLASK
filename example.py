@@ -5,13 +5,13 @@ import uuid
 
 app = Flask(__name__)
 
-users = [
-    {'id': 1, 'name': 'mike'},
-    {'id': 2, 'name': 'mishel'},
-    {'id': 3, 'name': 'adel'},
-    {'id': 4, 'name': 'keks'},
-    {'id': 5, 'name': 'kamila'}
-]
+# users = [
+#     {'id': 1, 'name': 'mike'},
+#     {'id': 2, 'name': 'mishel'},
+#     {'id': 3, 'name': 'adel'},
+#     {'id': 4, 'name': 'keks'},
+#     {'id': 5, 'name': 'kamila'}
+# ]
 
 
 @app.route('/')
@@ -48,6 +48,7 @@ def users_post():
         'name': user_data['name'],
         'email': user_data['email']
     }
+    users = []
     users.append(user)
     with open("users.json", "w") as f:
         json.dump(users, f)
@@ -76,7 +77,7 @@ def courses_show(id):
 
 @app.route('/users/<id>')
 def show_user(id):
-    with open("./users.json", "r") as f:
+    with open("users.json", "r") as f:
         users = json.load(f)
     user = next(user for user in users if id == str(user['id']))
     return render_template(
@@ -87,10 +88,10 @@ def show_user(id):
 
 @app.route('/users/<id>/edit')
 def users_edit(id):
-    with open("./users.json", "r") as f:
+    with open("users.json", "r") as f:
         users = json.load(f)
-    query = request.args.get('query', '')
-    filtered = [u for u in users if query in u['id']]
+    # query = request.args.get('query', '')
+        filtered = [u for u in users if id == str(u['id'])]
     errors = {}
 
     return render_template(
@@ -102,10 +103,10 @@ def users_edit(id):
 
 @app.route('/users/<id>/patch', methods=['POST'])
 def users_patch(id):
-    # with open("./users.json", "r") as f:
-    #     users = json.load(f)
-    query = request.args.get('query', '')
-    filtered = [u for u in users if query in u['id']]
+    with open("users.json", "r") as f:
+        users = json.load(f)
+    # query = request.args.get('query', '')
+        filtered = [u for u in users if id == str(u['id'])]
     data = request.form.to_dict()
 
     errors = validate(data)
@@ -119,7 +120,7 @@ def users_patch(id):
     filtered['name'] = data['name']
     filtered['email'] = data['email']
     with open("users.json", "w") as f:
-        json.dump(users, f)
+        json.dump(filtered, f)
     flash('User has been updated', 'success')
     return redirect(url_for('get_users'))
 
