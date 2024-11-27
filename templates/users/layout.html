@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Flask проект{% endblock %}</title>
 </head>
 <body>
-    <div id="sidebar">
-        {% block sidebar %}
+<div id="sidebar">
+    {% block sidebar %}
         <ul>
             <li><a href="{{ url_for('index') }}">Главная</a></li>
-            <li><a href="{{ url_for('get_users') }}">Пользователи</a></li>
+            <li><a href="{{ url_for('users_get') }}">Пользователи</a></li>
         </ul>
-        {% endblock %}
-    </div>
-    <div id="content">
-        {% block content %}{% endblock %}
-    </div>
+    {% endblock %}
+</div>
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
 </body>
 </html>

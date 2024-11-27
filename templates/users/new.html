@@ -1,31 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}New User{% endblock %}</title>
-</head>
-<body>
-    <div id="content">
-        {% block content %}
-        <form action="{{ url_for('users_post') }}" method="post">
-            <div>
-                <label for="user-nickname">
-                    Nickname:
-                    <input type="text" id="user-name" name="name" value="{{ user.name }}">
-                </label>
-            </div>
-            <div>
-                <label for="user-email">
-                  Email:
-                  <input type="email" id="user-email" name="email" value="{{ user.email }}">
-                </label>
-            </div>
-            <button type="submit" title="Submit form">Add</button>
-        </form>
+<h1>Новый пользователь</h1>
+<hr>
+{% if errors %}
+<ul class=flashes>
+    {% for _, error in errors.items() %}
+    <li class="error">{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<hr>
+<form action="{{ url_for('users_post') }}" method="post">
+    <div>
+    <label for="user-nickname">
+      Имя:
+      <input type="text" id="user-name" name="name" value="{{ user.name }}">
+    </label>
+  </div>
+  <div>
+    <label for="user-email">
+      Email:
+      <input type="text" id="user-email" name="email" value="{{ user.email }}">
+    </label>
+  </div>
+  <div>
+    <button type="submit" title="Submit form">Добавить</button>
+  </div>
+</form>
 
-        <p><a href="{{ url_for('get_users') }}">Назад к списку пользователей</a></p>
-        {% endblock %}
-    </div>
-</body>
-</html>
+<p><a href="{{ url_for('users_get') }}">Назад к списку пользователей</a></p>
