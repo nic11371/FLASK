@@ -1,3 +1,4 @@
+import os
 from flask import (
     get_flashed_messages,
     flash,
@@ -8,9 +9,24 @@ from flask import (
     url_for
 )
 from user_repository import UserRepository
+from psycopg2.extras import RealDictCursor
+import psycopg2
+
 
 app = Flask(__name__)
-app.secret_key = "secret_key"
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+# app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
+
+
+def get_connection():
+    return psycopg2.connect(
+        dbname='nikolay', user='nikolay', password='12345', host='localhost'
+    )
+
+# DATABASE_URL = 'postgres://nikolay:12345@localhost:5432/nikolay'
+
+
+repo = UserRepository(get_connection())
 
 
 @app.route('/')
