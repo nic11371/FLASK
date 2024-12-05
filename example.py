@@ -9,24 +9,17 @@ from flask import (
     url_for
 )
 from user_repository import UserRepository
-from psycopg2.extras import RealDictCursor
-import psycopg2
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-# app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
+app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
 
-
-def get_connection():
-    return psycopg2.connect(
-        dbname='nikolay', user='nikolay', password='12345', host='localhost'
-    )
 
 # DATABASE_URL = 'postgres://nikolay:12345@localhost:5432/nikolay'
 
 
-repo = UserRepository(get_connection())
+repo = UserRepository(app.config['DATABASE_URL'])
 
 
 @app.route('/')
@@ -38,7 +31,6 @@ def index():
 def users_get():
     messages = get_flashed_messages(with_categories=True)
     term = request.args.get('term', '')
-    repo = UserRepository()
     users = repo.get_content()
     filtered_users = [user for user in users if term in user['name']]
     return render_template(
@@ -59,7 +51,6 @@ def users_post():
             user=user_data,
             errors=errors,
         )
-    repo = UserRepository()
     repo.save(user_data)
 
     flash('Пользователь успешно добавлен', 'success')
@@ -79,7 +70,6 @@ def users_new():
 
 @app.route('/users/<id>/edit')
 def users_edit(id):
-    repo = UserRepository()
     user = repo.find(id)
     errors = {}
 
@@ -92,7 +82,6 @@ def users_edit(id):
 
 @app.route('/users/<id>/patch', methods=['POST'])
 def users_patch(id):
-    repo = UserRepository()
     user = repo.find(id)
     data = request.form.to_dict()
 
@@ -111,7 +100,6 @@ def users_patch(id):
 
 @app.route('/users/<id>/delete', methods=['POST'])
 def users_delete(id):
-    repo = UserRepository()
     repo.destroy(id)
     flash('Пользователь удален', 'success')
     return redirect(url_for('users_get'))
@@ -119,7 +107,6 @@ def users_delete(id):
 
 @app.route('/users/<id>')
 def users_show(id):
-    repo = UserRepository()
     user = repo.find(id)
     return render_template(
         'users/show.html',

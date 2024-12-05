@@ -1,10 +1,14 @@
 from psycopg2.extras import RealDictCursor
-# import psycopg2
+import psycopg2
+# dbname='nikolay', user='nikolay', password='12345', host='localhost'
 
 
 class UserRepository():
     def __init__(self, db_url):
         self.db_url = db_url
+
+    def get_connection(self):
+        return psycopg2.connect(self.db_url)
 
     def get_content(self):
         with self.get_connection() as conn:
@@ -21,7 +25,7 @@ class UserRepository():
     def destroy(self, id):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as c:
-                c.execute("DELETE * FROM users WHERE id = %s", (id,))
+                c.execute("DELETE FROM users WHERE id = %s", (id,))
             conn.commit()
 
     def save(self, user):
