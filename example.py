@@ -12,11 +12,9 @@ from user_repository import UserRepository
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.secret_key = 'super secret key' 
+# app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
-
-
-# DATABASE_URL = 'postgres://nikolay:12345@localhost:5432/nikolay'
 
 
 repo = UserRepository(app.config['DATABASE_URL'])

@@ -30,7 +30,7 @@ class UserRepository():
 
     def save(self, user):
         with self.get_connection() as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as c:
+            with conn.cursor() as c:
                 if 'id' not in user:
                     c.execute(
                         """INSERT INTO users (name, email) VALUES (%s, %s)
